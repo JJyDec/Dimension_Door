@@ -1,0 +1,449 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "加油开发\u003ch1\u003ep神\u003c/h1\u003e",
+        "title": "Dimension_Door 接口文档",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {}
+    },
+    "host": "127.0.0.1:",
+    "basePath": "8081",
+    "paths": {
+        "/apply/:id": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "用户完成对具体讲座的报名并返回结果",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "报名"
+                ],
+                "summary": "用户报名讲座接口",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller._ResponseSuccess"
+                        }
+                    }
+                }
+            }
+        },
+        "/cancel/:id": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "用户取消报名",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "取消报名"
+                ],
+                "summary": "用户取消报名",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller._ResponseSuccess"
+                        }
+                    }
+                }
+            }
+        },
+        "/delete/:id": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "管理员删除讲座信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "删除"
+                ],
+                "summary": "删除讲座信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller._ResponseSuccess"
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "完成用户的登录并返回Token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "登录"
+                ],
+                "summary": "用户登录接口",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "微信临时令牌",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "用户性别（默认0）",
+                        "name": "gender",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户头像",
+                        "name": "picture",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "username",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller._ResponseSuccess"
+                        }
+                    }
+                }
+            }
+        },
+        "/post": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "管理员账号发布讲座的信息，其中关于id的字段不要暴露给用户操作，点赞数量，已报名人数都不可暴露",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "发布"
+                ],
+                "summary": "发布讲座信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "name": "can_delete",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "create_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "点赞数量",
+                        "name": "like_nums",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "讲座限制人数",
+                        "name": "num_limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "帖子id",
+                        "name": "post_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "讲座内容简介",
+                        "name": "post_introduction",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "讲座图片(后期可以放一张图片作为默认值，放入静态资源）",
+                        "name": "post_picture",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "讲座地点",
+                        "name": "post_position",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "讲座开始时间",
+                        "name": "post_time",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "讲座标题",
+                        "name": "post_title",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "讲座报名人数",
+                        "name": "posted_nums",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "校验id",
+                        "name": "tea_verify_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "teacher_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "教师简介",
+                        "name": "teacher_intro",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "教师姓名",
+                        "name": "teacher_name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "教师专业",
+                        "name": "teacher_professional",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "教师学校",
+                        "name": "teacher_school",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "校验id",
+                        "name": "verify_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller._ResponseSuccess"
+                        }
+                    }
+                }
+            }
+        },
+        "/post/:id": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "查询单个讲座详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "查询讲座信息"
+                ],
+                "summary": "查询详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller._ResponsePost"
+                        }
+                    }
+                }
+            }
+        },
+        "/posts": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "展示一页讲座列表,参数中order只有两个值可以选（time、score）目前score还未实现（4.13），size和page表示第几页展示size条记录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "查询讲座信息"
+                ],
+                "summary": "查看讲座列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller._ResponsePostList"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controller._ResponsePost": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller._ResponsePostList": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller._ResponseSuccess": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
