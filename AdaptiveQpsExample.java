@@ -11,8 +11,44 @@ public class AdaptiveQpsExample {
         
         System.out.println("=== 自适应QPS控制系统演示 ===\n");
         
+        // 演示初始化流程
+        demonstrateInitialization(controller);
+        
         // 模拟不同场景的B系统状态
         demonstrateScenarios(controller);
+    }
+    
+    /**
+     * 演示系统初始化流程（冷启动）
+     */
+    private static void demonstrateInitialization(AdaptiveQpsCore controller) {
+        System.out.println("🚀 系统初始化（冷启动）");
+        
+        // 方式一：直接启动系统（推荐）
+        AdaptiveQpsCore.TrafficParameters initialParams = controller.startSystem();
+        
+        System.out.println("📋 初始参数:");
+        System.out.printf("   目标QPS: %d, 拥塞窗口: %d, 令牌桶容量: %d\n", 
+            initialParams.targetQps, initialParams.congestionWindow, initialParams.tokenBucketCapacity);
+        System.out.printf("   调整原因: %s\n", initialParams.adjustReason);
+        
+        // 方式二：也可以传入null（等效于方式一）
+        // AdaptiveQpsCore.TrafficParameters params = controller.adjustTrafficParameters(null);
+        
+        System.out.println("📈 初始状态: " + controller.getSystemStatus());
+        System.out.printf("💰 可用令牌: %d\n", controller.getAvailableTokens());
+        
+        // 尝试释放一些初始任务
+        System.out.println("\n🔄 尝试释放初始任务...");
+        List<Long> initialTasks = createTaskIds(20);
+        AdaptiveQpsCore.BatchReleaseResult result = controller.releaseTrafficBatch(
+            initialTasks, AdaptiveQpsExample::mockReleaseFunction
+        );
+        
+        System.out.printf("   初始释放: 总计 %d, 成功 %d, 失败 %d\n", 
+            result.totalRequests, result.successCount, result.failureCount);
+        
+        System.out.println("\n" + "=".repeat(60) + "\n");
     }
     
     private static void demonstrateScenarios(AdaptiveQpsCore controller) {

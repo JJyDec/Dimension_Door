@@ -165,10 +165,15 @@ public class AdaptiveQpsCore {
      * 根据B系统状态动态调整流量控制参数
      * 融合TCP拥塞控制算法和令牌桶机制
      * 
-     * @param stats B系统当前状态统计信息
+     * @param stats B系统当前状态统计信息，可以为null（初始状态）
      * @return 调整后的流量控制参数
      */
     public TrafficParameters adjustTrafficParameters(TrafficStats stats) {
+        // 处理初始状态（没有stats的情况）
+        if (stats == null) {
+            return initializeTrafficParameters();
+        }
+        
         updateSystemMetrics(stats);
         
         // 1. TCP拥塞控制算法调整拥塞窗口
@@ -189,6 +194,31 @@ public class AdaptiveQpsCore {
             bucketCapacity.get(),
             tokenGenerationRate.get(),
             adjustReason
+        );
+    }
+    
+    /**
+     * 初始化流量控制参数（冷启动时使用）
+     * 
+     * @return 初始的流量控制参数
+     */
+    private TrafficParameters initializeTrafficParameters() {
+        // 设置保守的初始值
+        long initialQps = config.initialCwnd * 10; // 基于初始拥塞窗口的保守估算
+        
+        congestionWindow.set(config.initialCwnd);
+        bucketCapacity.set(config.minBucketCapacity);
+        currentTokens.set(config.minBucketCapacity);
+        tokenGenerationRate.set(initialQps);
+        
+        currentState = CongestionState.SLOW_START;
+        
+        return new TrafficParameters(
+            initialQps,
+            config.initialCwnd,
+            config.minBucketCapacity,
+            initialQps,
+            "Initial cold start with conservative parameters"
         );
     }
     
@@ -542,6 +572,31 @@ public class AdaptiveQpsCore {
         }
     }
     
+    // ==================== 便利方法 ====================
+    
+    /**
+     * 启动系统（冷启动初始化）
+     * 在没有任何B系统状态信息时调用
+     * 
+     * @return 初始的流量控制参数
+     */
+    public TrafficParameters startSystem() {
+        return adjustTrafficParameters(null);
+    }
+    
+    /**
+     * 尝试释放单个任务（简化版本）
+     * 
+     * @param taskId 任务ID
+     * @param releaseFunction 释放函数
+     * @return 是否成功获取令牌并执行
+     */
+    public boolean trySingleRelease(Long taskId, java.util.function.Function<Long, ReleaseResult> releaseFunction) {
+        List<Long> singleTask = Arrays.asList(taskId);
+        BatchReleaseResult result = releaseTrafficBatch(singleTask, releaseFunction);
+        return result.totalRequests > 0 && result.successCount > 0;
+    }
+    
     // ==================== 状态查询方法 ====================
     
     /**
@@ -551,5 +606,20 @@ public class AdaptiveQpsCore {
         return String.format("CongestionWindow=%d, State=%s, Tokens=%d/%d, Rate=%d/s, AvgLoad=%.1f%%",
             congestionWindow.get(), currentState, currentTokens.get(), bucketCapacity.get(),
             tokenGenerationRate.get(), avgSystemLoad);
+    }
+    
+    /**
+     * 检查是否为初始状态
+     */
+    public boolean isInitialState() {
+        return updateCount == 0;
+    }
+    
+    /**
+     * 获取当前可用令牌数
+     */
+    public int getAvailableTokens() {
+        refillTokens();
+        return currentTokens.get();
     }
 }
